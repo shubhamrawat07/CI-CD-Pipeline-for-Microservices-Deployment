@@ -53,7 +53,7 @@ pipeline {
 
         stage('Deploy Product Service') {
             steps {
-                sh 'kubectl set image deployment/product-service user=rshubham07/product-service:latest'
+                sh 'kubectl set image deployment/product-service product=rshubham07/product-service:latest'
             }
         }
     }
