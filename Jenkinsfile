@@ -62,8 +62,17 @@ pipeline {
             sh 'docker logout'
         }
 	success {
-            sh 'docker pull rshubham07/user-service:${BUILD_TAG}'
-            sh 'docker pull rshubham07/product-service:${BUILD_TAG}'
-        }
+    sh '''
+        docker pull rshubham07/user-service:${BUILD_TAG}
+        docker stop user-service-local || true
+        docker rm user-service-local || true
+        docker run -d --name user-service-local -p 3000:3000 rshubham07/user-service:${BUILD_TAG}
+
+        docker pull rshubham07/product-service:${BUILD_TAG}
+        docker stop product-service-local || true
+        docker rm product-service-local || true
+        docker run -d --name product-service-local -p 3001:3001 rshubham07/product-service:${BUILD_TAG}
+    '''
+}
     }
 }
