@@ -2,14 +2,13 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_IMAGE_USER = "rshubham07/user-service:latest"
-        DOCKER_IMAGE_PRODUCT = "rshubham07/product-service:latest"
+        BUILD_TAG = "${env.BUILD_NUMBER}"
     }
 
     stages {
         stage('Build User Service') {
             steps {
-                sh 'docker build -t $DOCKER_IMAGE_USER ./user-service'
+                sh 'docker build -t rshubham07/user-service:${BUILD_TAG} ./user-service'
             }
         }
 
@@ -21,14 +20,14 @@ pipeline {
                     passwordVariable: 'DOCKER_PASS'
                 )]) {
                     sh 'echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin'
-                    sh 'docker push $DOCKER_IMAGE_USER'
+                    sh 'docker push rshubham07/user-service:${BUILD_TAG}'
                 }
             }
         }
 
         stage('Build Product Service') {
             steps {
-                sh 'docker build -t $DOCKER_IMAGE_PRODUCT ./product-service'
+                sh 'docker build -t rshubham07/product-service:${BUILD_TAG} ./product-service'
             }
         }
 
@@ -40,20 +39,20 @@ pipeline {
                     passwordVariable: 'DOCKER_PASS'
                 )]) {
                     sh 'echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin'
-                    sh 'docker push $DOCKER_IMAGE_PRODUCT'
+                    sh 'docker push rshubham07/product-service:${BUILD_TAG}'
                 }
             }
         }
 
         stage('Deploy User Service') {
             steps {
-                sh 'kubectl set image deployment/user-service user=rshubham07/user-service:latest'
+                sh 'kubectl set image deployment/user-service user=rshubham07/user-service:${BUILD_TAG}'
             }
         }
 
         stage('Deploy Product Service') {
             steps {
-                sh 'kubectl set image deployment/product-service product=rshubham07/product-service:latest'
+                sh 'kubectl set image deployment/product-service product=rshubham07/product-service:${BUILD_TAG}'
             }
         }
     }
