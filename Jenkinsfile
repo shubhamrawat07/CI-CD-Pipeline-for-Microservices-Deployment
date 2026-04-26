@@ -47,13 +47,13 @@ pipeline {
 
         stage('Deploy User Service') {
             steps {
-                sh 'kubectl set image deployment/user-service user-service=$DOCKER_IMAGE_USER'
+                sh 'kubectl set image deployment/user-service user=rshubham07/user-service:latest'
             }
         }
 
         stage('Deploy Product Service') {
             steps {
-                sh 'kubectl set image deployment/product-service product-service=$DOCKER_IMAGE_PRODUCT'
+                sh 'kubectl set image deployment/product-service user=rshubham07/product-service:latest'
             }
         }
     }
