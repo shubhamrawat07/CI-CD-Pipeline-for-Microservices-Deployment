@@ -61,5 +61,9 @@ pipeline {
         always {
             sh 'docker logout'
         }
+	success {
+            sh 'docker pull rshubham07/user-service:${BUILD_TAG}'
+            sh 'docker pull rshubham07/product-service:${BUILD_TAG}'
+        }
     }
 }
