@@ -58,21 +58,26 @@ pipeline {
     }
 
     post {
-        always {
-            sh 'docker logout'
-        }
-	success {
-    sh '''
-        docker pull rshubham07/user-service:${BUILD_TAG}
-        docker stop user-service-local || true
-        docker rm user-service-local || true
-        docker run -d --name user-service-local -p 3000:3000 rshubham07/user-service:${BUILD_TAG}
-
-        docker pull rshubham07/product-service:${BUILD_TAG}
-        docker stop product-service-local || true
-        docker rm product-service-local || true
-        docker run -d --name product-service-local -p 3001:3001 rshubham07/product-service:${BUILD_TAG}
-    '''
-}
+    always {
+        sh 'docker logout || true'
     }
+    success {
+        sh '''
+            # Kill anything on port 3000 and 3001 forcefully
+            docker ps -q --filter "publish=3000" | xargs -r docker stop
+            docker ps -q --filter "publish=3001" | xargs -r docker stop
+            
+            # Remove named containers if they exist
+            docker rm -f user-service-local || true
+            docker rm -f product-service-local || true
+
+            # Small wait to ensure ports are freed
+            sleep 2
+
+            # Run fresh containers
+            docker run -d --name user-service-local -p 3000:3000 rshubham07/user-service:${BUILD_TAG}
+            docker run -d --name product-service-local -p 3001:3000 rshubham07/product-service:${BUILD_TAG}
+        '''
+    }
+}
 }
